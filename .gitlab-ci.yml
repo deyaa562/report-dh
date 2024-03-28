@@ -1,0 +1,34 @@
+stages:
+  - build
+  - push-registry
+
+# variables:
+#   - TWINE_USERNAME: $TWINE_USERNAME
+#   - TWINE_PASSWORD: $TWINE_PASSWORD
+
+build:
+  stage: build
+  image: python:3.8.10
+  before_script:
+    - rm -f dist/*
+
+  script:
+    - python3 setup.py sdist
+
+  artifacts:
+    paths:
+      - dist/*
+
+  only:
+    - deyaa-test
+
+push-registry:
+  stage: push-registry
+  image: python:3.8.10
+  before_script:
+    - pip install twine
+  script:
+    twine upload --verbose --repository-url https://gitlab-automation.d-fendsolutions.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
+    # - twine upload --repository-url https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
+  only:
+    - deyaa-test
